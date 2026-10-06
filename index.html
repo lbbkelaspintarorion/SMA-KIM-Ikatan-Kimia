@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Materi Ajar Interaktif Kimia - Ikatan Kimia | LBB Kelas Pintar Orion</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Three.js for 3D Molecular Simulation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                    },
+                    colors: {
+                        orion: {
+                            50: '#f0f4ff',
+                            100: '#e0e9fe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        chemistry: {
+                            cyan: '#06b6d4',
+                            teal: '#14b8a6',
+                            emerald: '#10b981',
+                            purple: '#8b5cf6',
+                            pink: '#ec4899',
+                            amber: '#f59e0b'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+        }
+
+        /* Glassmorphism & Custom Effects */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+        }
+
+        .gradient-heading {
+            background: linear-gradient(135deg, #1d4ed8 0%, #06b6d4 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-banner {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 50%, #06b6d4 100%);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Sea of Electrons Animation */
+        @keyframes float-electron {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(12px, -15px); }
+            50% { transform: translate(-10px, 10px); }
+            75% { transform: translate(-15px, -8px); }
+        }
+
+        .electron-dot {
+            animation: float-electron 3s infinite ease-in-out;
+        }
+
+        /* Light Bulb Glow Effect */
+        .bulb-glow {
+            filter: drop-shadow(0px 0px 25px rgba(251, 191, 36, 0.95));
+        }
+
+        /* Tab Active State Utility */
+        .tab-btn.active {
+            background-color: #2563eb;
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between antialiased selection:bg-orion-500 selection:text-white">
+
+    <!-- Navigation Header -->
+    <header class="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-20">
+                <!-- Logo & Brand -->
+                <div class="flex items-center space-x-3 cursor-pointer" onclick="switchMainTab('pendahuluan')">
+                    <div class="w-12 h-12 rounded-2xl gradient-banner flex items-center justify-center text-white shadow-md shadow-blue-500/20">
+                        <i class="fa-solid fa-atom text-2xl animate-spin-slow"></i>
+                    </div>
+                    <div>
+                        <span class="text-xs font-bold uppercase tracking-wider text-orion-600">LBB Kelas Pintar Orion</span>
+                        <h1 class="text-xl font-extrabold text-slate-800 leading-tight">Ikatan Kimia Interaktif</h1>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="hidden md:flex items-center space-x-2 bg-slate-100 p-1.5 rounded-2xl border border-slate-200">
+                    <button onclick="switchMainTab('pendahuluan')" id="nav-pendahuluan" class="tab-btn active px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 flex items-center space-x-2">
+                        <i class="fa-solid fa-house"></i>
+                        <span>Pendahuluan</span>
+                    </button>
+                    <button onclick="switchMainTab('materi')" id="nav-materi" class="tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-book-open"></i>
+                        <span>Materi</span>
+                    </button>
+                    <button onclick="switchMainTab('lab')" id="nav-lab" class="tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-flask-vial"></i>
+                        <span>Virtual Lab</span>
+                    </button>
+                    <button onclick="switchMainTab('lkpd')" id="nav-lkpd" class="tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-file-pen"></i>
+                        <span>LKPD</span>
+                    </button>
+                    <button onclick="switchMainTab('quiz')" id="nav-quiz" class="tab-btn px-4 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-600 hover:text-slate-900 flex items-center space-x-2">
+                        <i class="fa-solid fa-trophy"></i>
+                        <span>Kuis Evaluasi</span>
+                    </button>
+                </nav>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="p-2.5 rounded-xl text-slate-600 hover:bg-slate-100 focus:outline-none">
+                        <i class="fa-solid fa-bars text-xl"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Menu -->
+        <div id="mobile-menu" class="hidden md:hidden border-b border-slate-200 bg-white px-4 pt-2 pb-4 space-y-2">
+            <button onclick="switchMainTab('pendahuluan'); toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded-xl font-medium text-slate-700 hover:bg-orion-50 hover:text-orion-600 flex items-center space-x-3">
+                <i class="fa-solid fa-house w-5"></i><span>Pendahuluan</span>
+            </button>
+            <button onclick="switchMainTab('materi'); toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded-xl font-medium text-slate-700 hover:bg-orion-50 hover:text-orion-600 flex items-center space-x-3">
+                <i class="fa-solid fa-book-open w-5"></i><span>Materi Interaktif</span>
+            </button>
+            <button onclick="switchMainTab('lab'); toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded-xl font-medium text-slate-700 hover:bg-orion-50 hover:text-orion-600 flex items-center space-x-3">
+                <i class="fa-solid fa-flask-vial w-5"></i><span>Virtual Lab 3D</span>
+            </button>
+            <button onclick="switchMainTab('lkpd'); toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded-xl font-medium text-slate-700 hover:bg-orion-50 hover:text-orion-600 flex items-center space-x-3">
+                <i class="fa-solid fa-file-pen w-5"></i><span>LKPD Lembar Kerja</span>
+            </button>
+            <button onclick="switchMainTab('quiz'); toggleMobileMenu();" class="w-full text-left px-4 py-3 rounded-xl font-medium text-slate-700 hover:bg-orion-50 hover:text-orion-600 flex items-center space-x-3">
+                <i class="fa-solid fa-trophy w-5"></i><span>Kuis Evaluasi</span>
+            </button>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ================= SECTION 1: PENDAHULUAN ================= -->
+        <section id="sec-pendahuluan" class="space-y-8 animate-fade-in">
+            <!-- Hero Banner -->
+            <div class="relative rounded-3xl gradient-banner p-8 sm:p-12 text-white shadow-xl overflow-hidden">
+                <div class="absolute right-0 top-0 bottom-0 w-1/3 opacity-10 pointer-events-none flex items-center justify-center">
+                    <i class="fa-solid fa-dna text-[20rem]"></i>
+                </div>
+                <div class="relative z-10 max-w-2xl space-y-4">
+                    <div class="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-md px-3.5 py-1.5 rounded-full text-xs font-semibold tracking-wide border border-white/30">
+                        <i class="fa-solid fa-sparkles text-amber-300"></i>
+                        <span>Modul Pembelajaran Kimia SMA Kelas XI</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-5xl font-extrabold leading-tight tracking-tight">
+                        Menguak Rahasia Kestabilan Atom & Molekul
+                    </h2>
+                    <p class="text-blue-100 text-base sm:text-lg leading-relaxed">
+                        Mengapa atom-atom saling berikatan? Bagaimana struktur molekul membentuk sifat-sifat zat di sekitar kita? Mari pelajari dengan mudah melalui simulasi visual 3D dan kuis interaktif.
+                    </p>
+                    <div class="pt-4 flex flex-wrap gap-4">
+                        <button onclick="switchMainTab('materi')" class="bg-white text-orion-800 hover:bg-orion-50 px-6 py-3.5 rounded-xl font-bold shadow-lg transition-all transform hover:-translate-y-0.5 flex items-center space-x-2">
+                            <span>Mulai Belajar</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </button>
+                        <button onclick="switchMainTab('lab')" class="bg-orion-900/40 hover:bg-orion-900/60 text-white border border-white/30 px-6 py-3.5 rounded-xl font-bold backdrop-blur-sm transition-all flex items-center space-x-2">
+                            <i class="fa-solid fa-cubes"></i>
+                            <span>Buka Lab 3D</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Identity Card & Metadata -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Authors Badge -->
+                <div class="glass-card rounded-2xl p-6 shadow-sm border-l-4 border-l-orion-600 flex flex-col justify-between">
+                    <div>
+                        <div class="flex items-center space-x-3 text-orion-600 mb-3">
+                            <i class="fa-solid fa-user-gear text-2xl"></i>
+                            <h3 class="font-bold text-slate-800">Identitas Modul</h3>
+                        </div>
+                        <p class="text-xs uppercase font-semibold text-slate-400">Tim Penyusun</p>
+                        <p class="text-base font-bold text-slate-800">Tim Penyusun LBB Kelas Pintar Orion</p>
+                        <div class="mt-4 pt-4 border-t border-slate-100 text-xs text-slate-500 space-y-1">
+                            <p><strong class="text-slate-700">Mata Pelajaran:</strong> Kimia SMA</p>
+                            <p><strong class="text-slate-700">Materi Pokok:</strong> Ikatan Kimia & Bentuk Molekul</p>
+                            <p><strong class="text-slate-700">Kurikulum:</strong> Kurikulum Merdeka / SMA</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Learning Objectives -->
+                <div class="md:col-span-2 glass-card rounded-2xl p-6 shadow-sm">
+                    <div class="flex items-center space-x-3 text-chemistry-teal mb-4">
+                        <i class="fa-solid fa-bullseye text-2xl"></i>
+                        <h3 class="font-bold text-slate-800 text-lg">Capaian & Tujuan Pembelajaran</h3>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm text-slate-600">
+                        <div class="flex items-start space-x-3 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                            <span>Menjelaskan kecenderungan atom mencapai kestabilan (Kaidah Duplet & Oktet).</span>
+                        </div>
+                        <div class="flex items-start space-x-3 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                            <span>Membedakan pembentukan **Ikatan Ion, Kovalen, dan Logam** serta sifat fisiknya.</span>
+                        </div>
+                        <div class="flex items-start space-x-3 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                            <span>Menganalisis **Bentuk Molekul** berdasarkan Teori VSEPR dan **Teori Hibridisasi**.</span>
+                        </div>
+                        <div class="flex items-start space-x-3 bg-slate-50 p-3.5 rounded-xl border border-slate-100">
+                            <i class="fa-solid fa-circle-check text-emerald-500 mt-1"></i>
+                            <span>Memahami pengaruh **Gaya Antarmolekul** terhadap titik didih dan sifat kepolaran.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive Concept Overview -->
+            <div class="glass-card rounded-2xl p-6 shadow-sm">
+                <h3 class="text-lg font-bold text-slate-800 mb-6 flex items-center space-x-2">
+                    <i class="fa-solid fa-sitemap text-orion-600"></i>
+                    <span>Peta Konsep Ikatan Kimia</span>
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                    <!-- Concept 1 -->
+                    <div onclick="switchMainTab('materi'); selectMateriSub('ion');" class="group p-5 rounded-2xl bg-blue-50/50 border border-blue-100 hover:border-blue-300 hover:bg-blue-50 transition-all cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold mb-3 shadow-md group-hover:scale-110 transition-transform">
+                            1
+                        </div>
+                        <h4 class="font-bold text-slate-800 group-hover:text-blue-600 transition-colors">Ikatan Ion</h4>
+                        <p class="text-xs text-slate-500 mt-1">Serah terima elektron antar logam & non-logam.</p>
+                    </div>
+                    <!-- Concept 2 -->
+                    <div onclick="switchMainTab('materi'); selectMateriSub('kovalen');" class="group p-5 rounded-2xl bg-cyan-50/50 border border-cyan-100 hover:border-cyan-300 hover:bg-cyan-50 transition-all cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-600 text-white flex items-center justify-center font-bold mb-3 shadow-md group-hover:scale-110 transition-transform">
+                            2
+                        </div>
+                        <h4 class="font-bold text-slate-800 group-hover:text-cyan-600 transition-colors">Ikatan Kovalen</h4>
+                        <p class="text-xs text-slate-500 mt-1">Pemakaian bersama pasangan elektron.</p>
+                    </div>
+                    <!-- Concept 3 -->
+                    <div onclick="switchMainTab('materi'); selectMateriSub('logam');" class="group p-5 rounded-2xl bg-amber-50/50 border border-amber-100 hover:border-amber-300 hover:bg-amber-50 transition-all cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl bg-amber-600 text-white flex items-center justify-center font-bold mb-3 shadow-md group-hover:scale-110 transition-transform">
+                            3
+                        </div>
+                        <h4 class="font-bold text-slate-800 group-hover:text-amber-600 transition-colors">Ikatan Logam</h4>
+                        <p class="text-xs text-slate-500 mt-1">Model lautan elektron valensi yang terdelokalisasi.</p>
+                    </div>
+                    <!-- Concept 4 -->
+                    <div onclick="switchMainTab('materi'); selectMateriSub('bentuk');" class="group p-5 rounded-2xl bg-purple-50/50 border border-purple-100 hover:border-purple-300 hover:bg-purple-50 transition-all cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl bg-purple-600 text-white flex items-center justify-center font-bold mb-3 shadow-md group-hover:scale-110 transition-transform">
+                            4
+                        </div>
+                        <h4 class="font-bold text-slate-800 group-hover:text-purple-600 transition-colors">Bentuk Molekul</h4>
+                        <p class="text-xs text-slate-500 mt-1">Teori VSEPR & Hibridisasi orbital molekul.</p>
+                    </div>
+                    <!-- Concept 5 -->
+                    <div onclick="switchMainTab('materi'); selectMateriSub('antarmolekul');" class="group p-5 rounded-2xl bg-pink-50/50 border border-pink-100 hover:border-pink-300 hover:bg-pink-50 transition-all cursor-pointer">
+                        <div class="w-10 h-10 rounded-xl bg-pink-600 text-white flex items-center justify-center font-bold mb-3 shadow-md group-hover:scale-110 transition-transform">
+                            5
+                        </div>
+                        <h4 class="font-bold text-slate-800 group-hover:text-pink-600 transition-colors">Gaya Antarmolekul</h4>
+                        <p class="text-xs text-slate-500 mt-1">Ikatan Hidrogen & Gaya Van der Waals.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 2: MATERI INTERAKTIF ================= -->
+        <section id="sec-materi" class="hidden space-y-6">
+            <!-- Sub Navigation Tabs for Materi -->
+            <div class="flex items-center overflow-x-auto space-x-2 pb-2 border-b border-slate-200">
+                <button onclick="selectMateriSub('ion')" id="subnav-ion" class="submateri-btn active px-4 py-2 rounded-xl text-sm font-bold bg-orion-600 text-white shadow-sm flex-shrink-0">
+                    1. Ikatan Ion
+                </button>
+                <button onclick="selectMateriSub('kovalen')" id="subnav-kovalen" class="submateri-btn px-4 py-2 rounded-xl text-sm font-bold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 flex-shrink-0">
+                    2. Ikatan Kovalen
+                </button>
+                <button onclick="selectMateriSub('logam')" id="subnav-logam" class="submateri-btn px-4 py-2 rounded-xl text-sm font-bold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 flex-shrink-0">
+                    3. Ikatan Logam
+                </button>
+                <button onclick="selectMateriSub('bentuk')" id="subnav-bentuk" class="submateri-btn px-4 py-2 rounded-xl text-sm font-bold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 flex-shrink-0">
+                    4. Bentuk Molekul & Hibridisasi
+                </button>
+                <button onclick="selectMateriSub('antarmolekul')" id="subnav-antarmolekul" class="submateri-btn px-4 py-2 rounded-xl text-sm font-bold bg-white text-slate-600 hover:bg-slate-100 border border-slate-200 flex-shrink-0">
+                    5. Gaya Antarmolekul
+                </button>
+            </div>
+
+            <!-- SUB-MATERI 1: IKATAN ION -->
+            <div id="materi-ion" class="submateri-content space-y-6">
+                <div class="glass-card rounded-2xl p-6 sm:p-8 space-y-6">
+                    <div class="flex items-center space-x-3 border-b border-slate-100 pb-4">
+                        <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-bolt text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">Ikatan Ion (Elektrovalen)</h3>
+                            <p class="text-xs text-slate-500">Terjadi karena perpindahan (serah terima) elektron valensi dari atom logam ke atom non-logam.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div class="space-y-4 text-slate-600 text-sm leading-relaxed">
+                            <p>
+                                Atom-atom cenderung mencapai konfigurasinya seperti gas mulia (Kaidah **Oktet** dengan 8 elektron valensi atau **Duplet** dengan 2 elektron valensi).
+                            </p>
+                            <ul class="list-disc pl-5 space-y-2">
+                                <li><strong class="text-slate-800">Atom Logam (Golongan I A, II A, III A):</strong> Memiliki energi ionisasi rendah, cenderung **melepas elektron** membentuk **Kation (+)**.</li>
+                                <li><strong class="text-slate-800">Atom Non-Logam (Golongan VI A, VII A):</strong> Memiliki afinitas elektron tinggi, cenderung **menerima elektron** membentuk **Anion (-)**.</li>
+                                <li>Gaya tarik elektrostatik (Gaya Coulomb) yang kuat antara anion dan kation menghasilkan **Kristal Ionik**.</li>
+                            </ul>
+
+                            <div class="p-4 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 space-y-1">
+                                <p class="font-bold"><i class="fa-solid fa-lightbulb text-amber-600 mr-1"></i> Contoh Pembentukan NaCl:</p>
+                                <p>Na (2, 8, 1) &rarr; Na⁺ (2, 8) + e⁻ *(Melepas 1 e⁻)*</p>
+                                <p>Cl (2, 8, 7) + e⁻ &rarr; Cl⁻ (2, 8, 8) *(Menerima 1 e⁻)*</p>
+                                <p class="font-bold text-blue-700">Na⁺ + Cl⁻ &rarr; NaCl (Natrium Klorida)</p>
+                            </div>
+                        </div>
+
+                        <!-- Interactive Simulation Widget for Ion Formation -->
+                        <div class="bg-slate-900 rounded-2xl p-6 text-white flex flex-col justify-between shadow-inner">
+                            <div class="flex justify-between items-center mb-4">
+                                <span class="text-xs font-semibold text-blue-400 uppercase tracking-wider">Simulasi Serah Terima Elektron</span>
+                                <span class="text-xs bg-slate-800 px-2.5 py-1 rounded-md text-slate-300">Na + Cl &rarr; NaCl</span>
+                            </div>
+
+                            <div id="ion-sim-container" class="flex items-center justify-around py-8 relative">
+                                <!-- Sodium Atom -->
+                                <div class="text-center space-y-2 z-10">
+                                    <div id="sim-na-circle" class="w-20 h-20 rounded-full border-2 border-blue-400 bg-blue-500/20 flex items-center justify-center mx-auto transition-all duration-500 relative">
+                                        <span class="font-extrabold text-xl text-blue-300">Na</span>
+                                        <div id="sim-electron" class="w-3.5 h-3.5 bg-yellow-400 rounded-full absolute -right-1 top-2 shadow-lg shadow-yellow-400/50 transition-all duration-1000"></div>
+                                    </div>
+                                    <p class="text-xs font-semibold text-slate-300">Natrium (2,8,1)</p>
+                                </div>
+
+                                <i id="sim-arrow" class="fa-solid fa-arrow-right text-slate-600 text-xl"></i>
+
+                                <!-- Chlorine Atom -->
+                                <div class="text-center space-y-2 z-10">
+                                    <div id="sim-cl-circle" class="w-24 h-24 rounded-full border-2 border-emerald-400 bg-emerald-500/20 flex items-center justify-center mx-auto transition-all duration-500">
+                                        <span class="font-extrabold text-xl text-emerald-300">Cl</span>
+                                    </div>
+                                    <p class="text-xs font-semibold text-slate-300">Klorin (2,8,7)</p>
+                                </div>
+                            </div>
+
+                            <div class="text-center pt-2">
+                                <button onclick="triggerIonSimulation()" class="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white rounded-xl text-xs font-bold transition-all shadow-md active:scale-95">
+                                    <i class="fa-solid fa-play mr-1.5"></i> Jalankan Transfer Elektron
+                                </button>
+                                <p id="ion-sim-status" class="text-xs text-slate-400 mt-2 italic">Klik tombol untuk melihat pembentukan ion Na⁺ dan Cl⁻</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-MATERI 2: IKATAN KOVALEN -->
+            <div id="materi-kovalen" class="submateri-content hidden space-y-6">
+                <div class="glass-card rounded-2xl p-6 sm:p-8 space-y-6">
+                    <div class="flex items-center space-x-3 border-b border-slate-100 pb-4">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-100 text-cyan-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-link text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">Ikatan Kovalen</h3>
+                            <p class="text-xs text-slate-500">Terjadi pemakaian bersama pasangan elektron antar sesama atom non-logam.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Card Jenis Kovalen -->
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                            <div class="w-8 h-8 rounded-lg bg-cyan-600 text-white flex items-center justify-center font-bold text-sm">
+                                1
+                            </div>
+                            <h4 class="font-bold text-slate-800">Kovalen Tunggal, Rangkap 2 & 3</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                &bull; **Tunggal:** Pemakaian 1 pasang e⁻ (contoh: H₂, H₂O)<br>
+                                &bull; **Rangkap 2:** Pemakaian 2 pasang e⁻ (contoh: O₂)<br>
+                                &bull; **Rangkap 3:** Pemakaian 3 pasang e⁻ (contoh: N₂)
+                            </p>
+                        </div>
+
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                            <div class="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center font-bold text-sm">
+                                2
+                            </div>
+                            <h4 class="font-bold text-slate-800">Kovalen Koordinasi</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Pasangan elektron yang digunakan bersama **hanya berasal dari salah satu atom**, sedangkan atom lainnya tidak menyumbang elektron.
+                                <br><span class="text-purple-700 font-semibold">Contoh: NH₄⁺, SO₃</span>
+                            </p>
+                        </div>
+
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                            <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-bold text-sm">
+                                3
+                            </div>
+                            <h4 class="font-bold text-slate-800">Kepolaran Kovalen</h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                &bull; **Kovalen Polar:** Memiliki beda keelektronegatifan & bentuk tidak simetris (Ada PEB) &rarr; Dipol (&delta;+, &delta;-). Contoh: H₂O, HCl.<br>
+                                &bull; **Kovalen Nonpolar:** Simetris, tidak ada PEB. Contoh: CH₄, O₂.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Electronegativity Interactive Slider Widget -->
+                    <div class="p-6 bg-slate-900 rounded-2xl text-white space-y-4">
+                        <h4 class="text-sm font-bold text-cyan-400 uppercase tracking-wider flex items-center space-x-2">
+                            <i class="fa-solid fa-sliders"></i>
+                            <span>Simulator Beda Keelektronegatifan & Kepolaran Ikatan</span>
+                        </h4>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="text-xs font-semibold text-slate-300 flex justify-between">
+                                        <span>Keelektronegatifan Atom A:</span>
+                                        <span id="val-en-a" class="text-cyan-400 font-bold">2.1 (Misal: H)</span>
+                                    </label>
+                                    <input type="range" id="slider-en-a" min="0.7" max="4.0" step="0.1" value="2.1" oninput="updatePolarityDemo()" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-cyan-400">
+                                </div>
+                                <div>
+                                    <label class="text-xs font-semibold text-slate-300 flex justify-between">
+                                        <span>Keelektronegatifan Atom B:</span>
+                                        <span id="val-en-b" class="text-pink-400 font-bold">3.5 (Misal: O)</span>
+                                    </label>
+                                    <input type="range" id="slider-en-b" min="0.7" max="4.0" step="0.1" value="3.5" oninput="updatePolarityDemo()" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-pink-400">
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-800 p-5 rounded-xl border border-slate-700 text-center space-y-2">
+                                <p class="text-xs text-slate-400">Selisih Keelektronegatifan (&Delta;EN):</p>
+                                <p id="den-result" class="text-3xl font-extrabold text-amber-400">1.4</p>
+                                <div id="den-badge" class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">
+                                    Kovalen Polar
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-MATERI 3: IKATAN LOGAM -->
+            <div id="materi-logam" class="submateri-content hidden space-y-6">
+                <div class="glass-card rounded-2xl p-6 sm:p-8 space-y-6">
+                    <div class="flex items-center space-x-3 border-b border-slate-100 pb-4">
+                        <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-gem text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">Ikatan Logam (Teori Lautan Elektron)</h3>
+                            <p class="text-xs text-slate-500">Gaya tarik elektrostatik antara kation-kation logam bermuatan positif dengan lautan elektron valensi yang bergerak bebas.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center">
+                        <div class="space-y-4 text-sm text-slate-600 leading-relaxed">
+                            <p>
+                                Karena energi ionisasi unsur logam rendah, elektron valensi relatif mudah terlepas dari inti dan terdelokalisasi membentuk **"lautan elektron"** mengelilingi ion positif logam.
+                            </p>
+                            <h4 class="font-bold text-slate-800 text-base">Sifat-sifat Khas Logam:</h4>
+                            <ul class="space-y-2">
+                                <li class="flex items-start space-x-2">
+                                    <i class="fa-solid fa-bolt text-amber-500 mt-1"></i>
+                                    <span><strong>Penghantar Listrik & Panas yang Baik:</strong> Elektron terdelokalisasi bebas bergerak membawa muatan listrik/panas.</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <i class="fa-solid fa-hammer text-amber-500 mt-1"></i>
+                                    <span><strong>Dapat Tempa & Diregangkan (Malleable):</strong> Ketika dipukul, lapisan kation bergeser tanpa memutuskan ikatan karena lautan elektron menyesuaikan diri.</span>
+                                </li>
+                                <li class="flex items-start space-x-2">
+                                    <i class="fa-solid fa-sun text-amber-500 mt-1"></i>
+                                    <span><strong>Mengkilap:</strong> Elektron bebas memantulkan cahaya kembali.</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Animated Sea of Electrons Container -->
+                        <div class="bg-slate-900 rounded-2xl p-6 text-white space-y-4">
+                            <h4 class="text-xs font-bold text-amber-400 uppercase tracking-wider text-center">Visualisasi Model Lautan Elektron</h4>
+                            <div class="relative h-48 bg-slate-800 rounded-xl border border-slate-700 overflow-hidden grid grid-cols-4 grid-rows-3 gap-2 p-4">
+                                <!-- Positive Metal Cations -->
+                                <script>
+                                    for(let i=0; i<12; i++){
+                                        document.write(`
+                                            <div class="relative flex items-center justify-center bg-amber-500/30 border border-amber-400 text-amber-300 font-extrabold text-sm rounded-full shadow-inner">
+                                                Fe²⁺
+                                            </div>
+                                        `);
+                                    }
+                                </script>
+                                <!-- Floating Electrons Overlay -->
+                                <div class="absolute inset-0 pointer-events-none">
+                                    <div class="electron-dot absolute top-4 left-10 w-2.5 h-2.5 bg-cyan-400 rounded-full shadow-lg shadow-cyan-400"></div>
+                                    <div class="electron-dot absolute top-12 left-1/2 w-2.5 h-2.5 bg-cyan-400 rounded-full shadow-lg shadow-cyan-400"></div>
+                                    <div class="electron-dot absolute bottom-6 right-12 w-2.5 h-2.5 bg-cyan-400 rounded-full shadow-lg shadow-cyan-400"></div>
+                                    <div class="electron-dot absolute top-20 right-1/4 w-2.5 h-2.5 bg-cyan-400 rounded-full shadow-lg shadow-cyan-400"></div>
+                                    <div class="electron-dot absolute bottom-12 left-1/4 w-2.5 h-2.5 bg-cyan-400 rounded-full shadow-lg shadow-cyan-400"></div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-400 text-center italic">&bull; Bulatan Kuning: Kation Logam | Titik Biru: Elektron Valensi Bebas Bergerak</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-MATERI 4: BENTUK MOLEKUL & HIBRIDISASI -->
+            <div id="materi-bentuk" class="submateri-content hidden space-y-6">
+                <div class="glass-card rounded-2xl p-6 sm:p-8 space-y-6">
+                    <div class="flex items-center space-x-3 border-b border-slate-100 pb-4">
+                        <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-shapes text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">Bentuk Molekul & Teori Hibridisasi</h3>
+                            <p class="text-xs text-slate-500">Penentuan geometri molekul menggunakan Teori Tolakan Pasangan Elektron (VSEPR) dan Pembentukan Orbital Hibrida.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- VSEPR Explanation -->
+                        <div class="space-y-3 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                            <h4 class="font-bold text-purple-700 flex items-center space-x-2">
+                                <i class="fa-solid fa-atom"></i>
+                                <span>Teori VSEPR (AXₘEₙ)</span>
+                            </h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Pasangan elektron mengelilingi atom pusat saling tolak-menolak untuk berada pada jarak sejauh mungkin guna meminimalkan tolakan.
+                            </p>
+                            <ul class="text-xs text-slate-600 space-y-1">
+                                <li><strong>A:</strong> Atom Pusat</li>
+                                <li><strong>X:</strong> Pasangan Elektron Ikatan (PEI)</li>
+                                <li><strong>E:</strong> Pasangan Elektron Bebas (PEB)</li>
+                                <li><strong class="text-red-600">Catatan Tolakan:</strong> PEB-PEB &gt; PEB-PEI &gt; PEI-PEI</li>
+                            </ul>
+                        </div>
+
+                        <!-- Hybridization Table Summary -->
+                        <div class="space-y-3 bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                            <h4 class="font-bold text-purple-700 flex items-center space-x-2">
+                                <i class="fa-solid fa-layer-group"></i>
+                                <span>Teori Hibridisasi Orbital</span>
+                            </h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Proses penggabungan orbital-orbital atomik standar membentuk orbital hibrida baru bersenergi setara.
+                            </p>
+                            <div class="overflow-x-auto">
+                                <table class="w-full text-xs text-left border-collapse">
+                                    <thead>
+                                        <tr class="border-b border-slate-300 font-bold text-slate-700">
+                                            <th class="py-1">Hibrid</th>
+                                            <th class="py-1">Geometri</th>
+                                            <th class="py-1">Sudut</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-slate-600">
+                                        <tr class="border-b border-slate-200"><td>sp</td><td>Linear</td><td>180°</td></tr>
+                                        <tr class="border-b border-slate-200"><td>sp²</td><td>Segitiga Sama Sisi</td><td>120°</td></tr>
+                                        <tr class="border-b border-slate-200"><td>sp³</td><td>Tetrahedral</td><td>109.5°</td></tr>
+                                        <tr class="border-b border-slate-200"><td>sp³d</td><td>Bipiramida Trigonal</td><td>90°, 120°</td></tr>
+                                        <tr><td>sp³d²</td><td>Oktahedral</td><td>90°</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center pt-2">
+                        <button onclick="switchMainTab('lab')" class="bg-purple-600 hover:bg-purple-500 text-white px-6 py-3 rounded-xl text-sm font-bold shadow-md transition-all inline-flex items-center space-x-2">
+                            <i class="fa-solid fa-cube text-base"></i>
+                            <span>Eksplor Bentuk Molekul 3D di Virtual Lab</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-MATERI 5: GAYA ANTARMOLEKUL -->
+            <div id="materi-antarmolekul" class="submateri-content hidden space-y-6">
+                <div class="glass-card rounded-2xl p-6 sm:p-8 space-y-6">
+                    <div class="flex items-center space-x-3 border-b border-slate-100 pb-4">
+                        <div class="w-10 h-10 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center font-bold">
+                            <i class="fa-solid fa-arrows-split-up-and-left text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-xl font-bold text-slate-800">Gaya Antarmolekul</h3>
+                            <p class="text-xs text-slate-500">Gaya tarik-menarik antar molekul netral yang mempengaruhi titik didih dan titik leleh suatu zat.</p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                            <h4 class="font-bold text-pink-600 flex items-center space-x-2">
+                                <i class="fa-solid fa-droplet"></i>
+                                <span>1. Ikatan Hidrogen</span>
+                            </h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                Gaya tarik sangat kuat antara atom **H** yang terikat pada atom sangat elektronegatif (**N, O, F**) dengan pasangan elektron bebas molekul lain.
+                            </p>
+                            <p class="text-xs bg-pink-50 p-2.5 rounded-lg text-pink-900 border border-pink-200">
+                                <strong>Dampak:</strong> Menyebabkan titik didih H₂O, HF, dan NH₃ jauh lebih tinggi dibanding senyawa sehidridanya.
+                            </p>
+                        </div>
+
+                        <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200 space-y-3">
+                            <h4 class="font-bold text-blue-600 flex items-center space-x-2">
+                                <i class="fa-solid fa-[#4F46E5] fa-wind"></i>
+                                <span>2. Gaya Van der Waals</span>
+                            </h4>
+                            <p class="text-xs text-slate-600 leading-relaxed">
+                                &bull; **Gaya Dipol-Dipol:** Tarik-menarik molekul polar netral.<br>
+                                &bull; **Gaya Dispersi London:** Tarik-menarik molekul nonpolar akibat dipol sesaat (karena pergerakan elektron). Berbanding lurus dengan Massa Molekul (Mr).
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 3: LABORATORIUM VIRTUAL ================= -->
+        <section id="sec-lab" class="hidden space-y-6">
+            <!-- Lab Sub Tabs -->
+            <div class="flex border-b border-slate-200 space-x-4">
+                <button onclick="selectLabTab('3d')" id="labtab-3d" class="px-5 py-3 font-bold text-sm border-b-2 border-orion-600 text-orion-600 flex items-center space-x-2">
+                    <i class="fa-solid fa-cube"></i>
+                    <span>Simulasi Bentuk Molekul 3D & Hibridisasi</span>
+                </button>
+                <button onclick="selectLabTab('hantar')" id="labtab-hantar" class="px-5 py-3 font-bold text-sm border-b-2 border-transparent text-slate-500 hover:text-slate-800 flex items-center space-x-2">
+                    <i class="fa-solid fa-plug"></i>
+                    <span>Uji Daya Hantar Listrik</span>
+                </button>
+            </div>
+
+            <!-- LAB 1: 3D MOLECULAR VIEWER -->
+            <div id="lab-3d-container" class="space-y-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Controls Sidebar -->
+                    <div class="glass-card p-6 rounded-2xl space-y-5">
+                        <h3 class="font-bold text-slate-800 text-lg border-b border-slate-100 pb-3">Pilih Molekul</h3>
+
+                        <div class="space-y-2">
+                            <label class="text-xs font-semibold text-slate-500 uppercase">Daftar Molekul Evaluasi:</label>
+                            <select id="mol-selector" onchange="loadSelectedMolecule()" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-orion-500">
+                                <option value="ch4">CH₄ (Metana) - Tetrahedral</option>
+                                <option value="h2o">H₂O (Air) - Bent / Bengkok</option>
+                                <option value="nh3">NH₃ (Amonia) - Trigonal Piramida</option>
+                                <option value="bf3">BF₃ (Boron Trifluorida) - Trigonal Planar</option>
+                                <option value="co2">CO₂ (Karbon Dioksida) - Linear</option>
+                                <option value="pcl5">PCl₅ (Fosfor Pentaklorida) - Bipiramida Trigonal</option>
+                                <option value="sf6">SF₆ (Belerang Heksafluorida) - Oktahedral</option>
+                            </select>
+                        </div>
+
+                        <!-- Molecule Info Card -->
+                        <div id="mol-info-card" class="bg-blue-50/70 p-4 rounded-xl border border-blue-100 space-y-2 text-xs text-slate-700">
+                            <p><strong>Rumus Molekul:</strong> <span id="info-formula" class="text-blue-700 font-bold">CH₄</span></p>
+                            <p><strong>Notasi VSEPR:</strong> <span id="info-vsepr" class="font-semibold">AX₄</span></p>
+                            <p><strong>PEI / PEB:</strong> <span id="info-peb font-semibold">PEI = 4 | PEB = 0</span></p>
+                            <p><strong>Hibridisasi Atom Pusat:</strong> <span id="info-hybrid" class="text-purple-700 font-bold">sp³</span></p>
+                            <p><strong>Sudut Ikatan:</strong> <span id="info-angle" class="font-semibold">109.5°</span></p>
+                        </div>
+
+                        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-xs text-amber-900 flex items-start space-x-2">
+                            <i class="fa-solid fa-hand-pointer text-amber-600 mt-0.5"></i>
+                            <span>Gunakan mouse / sentuhan pada area canvas untuk memutar objek 3D secara bebas!</span>
+                        </div>
+                    </div>
+
+                    <!-- 3D Canvas Area -->
+                    <div class="lg:col-span-2 bg-slate-950 rounded-2xl h-[450px] relative overflow-hidden flex items-center justify-center shadow-xl border border-slate-800">
+                        <div id="canvas-3d" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
+                        
+                        <div class="absolute bottom-4 right-4 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 text-xs flex items-center space-x-2">
+                            <span class="w-3 h-3 rounded-full bg-cyan-400 inline-block"></span>
+                            <span>Visualisasi Tiga Dimensi</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LAB 2: CONDUCTIVITY SIMULATOR -->
+            <div id="lab-hantar-container" class="hidden glass-card p-6 sm:p-8 rounded-2xl space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">Simulasi Uji Daya Hantar Listrik</h3>
+                        <p class="text-xs text-slate-500">Uji kemampuan larutan/zat dalam menghantarkan arus listrik berdasarkan ketersediaan ion bebas.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Controls -->
+                    <div class="space-y-4">
+                        <label class="text-xs font-semibold text-slate-500 uppercase">Pilih Sampel Zat:</label>
+                        <div class="space-y-2">
+                            <button onclick="setConductivitySample('nacl_aq')" id="sample-nacl_aq" class="sample-btn w-full text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 font-semibold text-sm transition-all flex justify-between items-center bg-blue-50 border-blue-500 text-blue-700">
+                                <span>Larutan NaCl 1 M</span>
+                                <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-bold">Elektrolit Kuat</span>
+                            </button>
+                            <button onclick="setConductivitySample('ch3cooh')" id="sample-ch3cooh" class="sample-btn w-full text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 font-semibold text-sm transition-all flex justify-between items-center text-slate-700">
+                                <span>Larutan CH₃COOH 0.1 M</span>
+                                <span class="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-bold">Elektrolit Lemah</span>
+                            </button>
+                            <button onclick="setConductivitySample('sugar')" id="sample-sugar" class="sample-btn w-full text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 font-semibold text-sm transition-all flex justify-between items-center text-slate-700">
+                                <span>Larutan C₁₂H₂₂O₁₁ (Gula)</span>
+                                <span class="text-xs bg-red-100 text-red-800 px-2 py-0.5 rounded font-bold">Non-Elektrolit</span>
+                            </button>
+                            <button onclick="setConductivitySample('cu_solid')" id="sample-cu_solid" class="sample-btn w-full text-left p-3 rounded-xl border border-slate-200 hover:bg-slate-50 font-semibold text-sm transition-all flex justify-between items-center text-slate-700">
+                                <span>Batang Tembaga (Cu)</span>
+                                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded font-bold">Konduktor Logam</span>
+                            </button>
+                        </div>
+
+                        <!-- Circuit Switch -->
+                        <div class="pt-4 border-t border-slate-100">
+                            <button id="circuit-switch-btn" onclick="toggleCircuit()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold shadow-md transition-all flex items-center justify-center space-x-2">
+                                <i class="fa-solid fa-power-off"></i>
+                                <span id="switch-text">Sakelar: ON</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Lab Visualizer Canvas/SVG Graphics -->
+                    <div class="lg:col-span-2 bg-slate-900 rounded-2xl p-6 relative flex flex-col items-center justify-center min-h-[380px]">
+                        <!-- Light Bulb Graphic -->
+                        <div class="relative mb-6 text-center">
+                            <div id="lab-bulb" class="w-16 h-16 rounded-full bg-slate-700 mx-auto transition-all duration-300 flex items-center justify-center">
+                                <i class="fa-solid fa-lightbulb text-3xl text-slate-500"></i>
+                            </div>
+                            <p id="bulb-status-text" class="text-xs text-slate-400 mt-2 font-semibold">Lampu Redup / Mati</p>
+                        </div>
+
+                        <!-- Beaker Visual -->
+                        <div class="w-64 h-44 border-4 border-slate-500 border-t-0 rounded-b-3xl relative bg-blue-500/10 overflow-hidden flex items-center justify-center">
+                            <!-- Electrodes -->
+                            <div class="absolute top-0 left-16 w-3 h-full bg-slate-400"></div>
+                            <div class="absolute top-0 right-16 w-3 h-full bg-slate-400"></div>
+
+                            <!-- Bubbles / Ion effect area -->
+                            <div id="ion-particles-container" class="absolute inset-0"></div>
+
+                            <!-- Liquid Level -->
+                            <div id="liquid-color" class="absolute bottom-0 w-full h-32 bg-blue-400/30 transition-all duration-500"></div>
+                        </div>
+
+                        <!-- Observation Summary -->
+                        <div class="mt-4 text-center">
+                            <p id="sample-desc" class="text-xs text-slate-300 italic">Terionisasi sempurna menjadi ion Na⁺ dan Cl⁻ bebas bergerak.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 4: LKPD INTERAKTIF ================= -->
+        <section id="sec-lkpd" class="hidden space-y-6">
+            <div class="glass-card p-6 sm:p-8 rounded-2xl space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <div class="inline-flex items-center space-x-2 bg-orion-50 text-orion-700 text-xs font-bold px-3 py-1 rounded-full mb-1">
+                            <span>LKPD DIGITAL</span>
+                        </div>
+                        <h3 class="text-xl font-bold text-slate-800">Lembar Kerja Peserta Didik (LKPD)</h3>
+                        <p class="text-xs text-slate-500">Selesaikan tugas analisis di bawah ini dan unduh/cetak resume jawaban Anda.</p>
+                    </div>
+                </div>
+
+                <!-- Student Identity Form -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 text-sm">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Nama Lengkap Siswa:</label>
+                        <input type="text" id="lkpd-nama" placeholder="Masukkan nama Anda..." class="w-full p-2.5 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orion-500 text-slate-800">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 mb-1">Kelas / Kelompok:</label>
+                        <input type="text" id="lkpd-kelas" placeholder="Misal: XI IPA 1 / Kelompok Orion 2" class="w-full p-2.5 bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orion-500 text-slate-800">
+                    </div>
+                </div>
+
+                <!-- Task 1: Classification Interactive Quiz -->
+                <div class="space-y-4">
+                    <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
+                        <span class="w-6 h-6 bg-orion-600 text-white rounded-full flex items-center justify-center text-xs">1</span>
+                        <span>Klasifikasi Jenis Ikatan Kimia</span>
+                    </h4>
+                    <p class="text-xs text-slate-600">Tentukan jenis ikatan utama yang terdapat pada senyawa berikut:</p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <!-- Compound 1 -->
+                        <div class="p-4 bg-white rounded-xl border border-slate-200 space-y-2">
+                            <span class="font-extrabold text-slate-800 text-lg">KCl (Kalium Klorida)</span>
+                            <select id="lkpd-q1" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold">
+                                <option value="">-- Pilih Jenis Ikatan --</option>
+                                <option value="ion">Ikatan Ion</option>
+                                <option value="kovalen">Ikatan Kovalen</option>
+                                <option value="logam">Ikatan Logam</option>
+                            </select>
+                        </div>
+                        <!-- Compound 2 -->
+                        <div class="p-4 bg-white rounded-xl border border-slate-200 space-y-2">
+                            <span class="font-extrabold text-slate-800 text-lg">CH₄ (Metana)</span>
+                            <select id="lkpd-q2" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold">
+                                <option value="">-- Pilih Jenis Ikatan --</option>
+                                <option value="ion">Ikatan Ion</option>
+                                <option value="kovalen">Ikatan Kovalen</option>
+                                <option value="logam">Ikatan Logam</option>
+                            </select>
+                        </div>
+                        <!-- Compound 3 -->
+                        <div class="p-4 bg-white rounded-xl border border-slate-200 space-y-2">
+                            <span class="font-extrabold text-slate-800 text-lg">Fe (Besi/Logam)</span>
+                            <select id="lkpd-q3" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold">
+                                <option value="">-- Pilih Jenis Ikatan --</option>
+                                <option value="ion">Ikatan Ion</option>
+                                <option value="kovalen">Ikatan Kovalen</option>
+                                <option value="logam">Ikatan Logam</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Task 2: Essay Reflection Analysis -->
+                <div class="space-y-4">
+                    <h4 class="font-bold text-slate-800 text-sm flex items-center space-x-2">
+                        <span class="w-6 h-6 bg-orion-600 text-white rounded-full flex items-center justify-center text-xs">2</span>
+                        <span>Analisis Geometri & Kepolaran Molekul H₂O</span>
+                    </h4>
+                    <label class="block text-xs text-slate-600">
+                        Jelaskan mengapa molekul H₂O memiliki bentuk beralur (**Bent / V-shape**) dan bersifat polar meskipun memiliki 2 pasangan elektron ikatan:
+                    </label>
+                    <textarea id="lkpd-essay" rows="4" placeholder="Tuliskan alasan analisis Anda terkait PEB pada atom Oksigen..." class="w-full p-3 bg-white border border-slate-300 rounded-xl text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-orion-500"></textarea>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button onclick="simpanDanCetakLKPD()" class="bg-emerald-600 hover:bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold text-xs shadow-md transition-all flex items-center space-x-2">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Cetak / Resume LKPD</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= SECTION 5: KUIS EVALUASI ================= -->
+        <section id="sec-quiz" class="hidden space-y-6">
+            <div class="glass-card p-6 sm:p-8 rounded-2xl space-y-6">
+                <!-- Quiz Header -->
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 class="text-xl font-bold text-slate-800">Kuis Evaluasi Ikatan Kimia</h3>
+                        <p class="text-xs text-slate-500">Uji pemahaman Anda dengan 10 soal pilihan ganda interaktif.</p>
+                    </div>
+                    <div id="quiz-score-badge" class="hidden bg-orion-50 border border-orion-200 px-4 py-2 rounded-xl text-center">
+                        <span class="text-xs text-slate-500 block font-semibold">Skor Anda:</span>
+                        <span id="quiz-score-val" class="text-xl font-extrabold text-orion-600">0 / 100</span>
+                    </div>
+                </div>
+
+                <!-- Quiz Progress Bar -->
+                <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                    <div id="quiz-progress-bar" class="bg-orion-600 h-full w-[10%] transition-all duration-300"></div>
+                </div>
+
+                <!-- Question Box -->
+                <div id="quiz-box" class="space-y-6">
+                    <div class="flex justify-between items-center text-xs font-bold text-slate-400">
+                        <span id="quiz-q-num">Soal 1 dari 10</span>
+                        <span id="quiz-q-category" class="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md">Ikatan Ion</span>
+                    </div>
+
+                    <h4 id="quiz-q-text" class="text-base sm:text-lg font-bold text-slate-800 leading-snug">
+                        Teks Pertanyaan...
+                    </h4>
+
+                    <!-- Options List -->
+                    <div id="quiz-options" class="space-y-3">
+                        <!-- Options generated by JS -->
+                    </div>
+
+                    <!-- Explanation Box (Initially Hidden) -->
+                    <div id="quiz-explanation" class="hidden p-4 rounded-xl bg-blue-50 border border-blue-200 text-xs text-blue-900 space-y-1">
+                        <p class="font-bold flex items-center space-x-1">
+                            <i class="fa-solid fa-circle-info text-blue-600"></i>
+                            <span>Pembahasan:</span>
+                        </p>
+                        <p id="quiz-explanation-text">Penjelasan lengkap jawaban...</p>
+                    </div>
+
+                    <!-- Navigation Buttons -->
+                    <div class="flex justify-between items-center pt-4 border-t border-slate-100">
+                        <button id="quiz-prev-btn" onclick="prevQuestion()" class="px-4 py-2.5 bg-slate-100 text-slate-600 rounded-xl font-bold text-xs hover:bg-slate-200 disabled:opacity-50 transition-all">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Sebelumnya
+                        </button>
+                        <button id="quiz-next-btn" onclick="nextQuestion()" class="px-5 py-2.5 bg-orion-600 text-white rounded-xl font-bold text-xs hover:bg-orion-500 shadow-md transition-all">
+                            Berikutnya <i class="fa-solid fa-arrow-right ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Quiz Results Container (Hidden initially) -->
+                <div id="quiz-results" class="hidden text-center py-8 space-y-6">
+                    <div class="w-20 h-20 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto text-3xl shadow-lg">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <div class="space-y-2">
+                        <h4 class="text-2xl font-extrabold text-slate-800">Evaluasi Selesai!</h4>
+                        <p class="text-sm text-slate-500">Terima kasih telah menyelesaikan kuis Ikatan Kimia.</p>
+                    </div>
+
+                    <div class="max-w-xs mx-auto bg-slate-50 p-6 rounded-2xl border border-slate-200 space-y-2">
+                        <p class="text-xs uppercase font-semibold text-slate-400">Total Skor Akhir</p>
+                        <p id="final-score" class="text-5xl font-extrabold text-orion-600">0</p>
+                    </div>
+
+                    <div class="pt-4">
+                        <button onclick="resetQuiz()" class="px-6 py-3 bg-orion-600 hover:bg-orion-500 text-white rounded-xl font-bold text-xs shadow-md transition-all inline-flex items-center space-x-2">
+                            <i class="fa-solid fa-rotate-right"></i>
+                            <span>Ulangi Kuis</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 mt-12 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4 space-y-2">
+            <p class="font-bold text-slate-700">Modul Pembelajaran Interaktif Ikatan Kimia</p>
+            <p>Dikembangkan oleh <strong class="text-orion-600">Tim Penyusun LBB Kelas Pintar Orion</strong> &copy; 2026. Seluruh hak cipta dilindungi.</p>
+        </div>
+    </footer>
+
+    <script>
+        /* ================= MAIN NAVIGATION STATE ================= */
+        function switchMainTab(tabId) {
+            // Hide all sections
+            const sections = ['pendahuluan', 'materi', 'lab', 'lkpd', 'quiz'];
+            sections.forEach(sec => {
+                document.getElementById(`sec-${sec}`).classList.add('hidden');
+                document.getElementById(`nav-${sec}`)?.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(`sec-${tabId}`).classList.remove('hidden');
+            document.getElementById(`nav-${tabId}`)?.classList.add('active');
+
+            // Scroll to top
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Trigger specific load events
+            if(tabId === 'lab') {
+                setTimeout(init3DViewer, 100);
+            }
+        }
+
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        /* ================= SUB-MATERI TABS LOGIC ================= */
+        function selectMateriSub(subId) {
+            const subs = ['ion', 'kovalen', 'logam', 'bentuk', 'antarmolekul'];
+            subs.forEach(s => {
+                document.getElementById(`materi-${s}`).classList.add('hidden');
+                const btn = document.getElementById(`subnav-${s}`);
+                btn.classList.remove('bg-orion-600', 'text-white', 'shadow-sm');
+                btn.classList.add('bg-white', 'text-slate-600');
+            });
+
+            document.getElementById(`materi-${subId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`subnav-${subId}`);
+            activeBtn.classList.add('bg-orion-600', 'text-white', 'shadow-sm');
+            activeBtn.classList.remove('bg-white', 'text-slate-600');
+        }
+
+        /* ================= ION SIMULATION ================= */
+        function triggerIonSimulation() {
+            const electron = document.getElementById('sim-electron');
+            const status = document.getElementById('ion-sim-status');
+            const naCircle = document.getElementById('sim-na-circle');
+            const clCircle = document.getElementById('sim-cl-circle');
+
+            electron.style.transform = "translateX(140px)";
+            status.innerText = "Elektron berpindah dari Na ke Cl...";
+
+            setTimeout(() => {
+                naCircle.classList.add('border-blue-600', 'scale-90');
+                clCircle.classList.add('border-emerald-600', 'scale-110');
+                status.innerText = "Terbentuk Cation Na⁺ (2,8) dan Anion Cl⁻ (2,8,8) saling tarik-menarik!";
+            }, 1000);
+
+            setTimeout(() => {
+                electron.style.transform = "translateX(0px)";
+                naCircle.classList.remove('scale-90');
+                clCircle.classList.remove('scale-110');
+            }, 3500);
+        }
+
+        /* ================= POLARITY SLIDER DEMO ================= */
+        function updatePolarityDemo() {
+            const enA = parseFloat(document.getElementById('slider-en-a').value);
+            const enB = parseFloat(document.getElementById('slider-en-b').value);
+
+            document.getElementById('val-en-a').innerText = `${enA.toFixed(1)}`;
+            document.getElementById('val-en-b').innerText = `${enB.toFixed(1)}`;
+
+            const diff = Math.abs(enA - enB).toFixed(1);
+            document.getElementById('den-result').innerText = diff;
+
+            const badge = document.getElementById('den-badge');
+            if (diff >= 1.7) {
+                badge.innerText = "Karakter Dominan Ionik";
+                badge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30";
+            } else if (diff > 0.4) {
+                badge.innerText = "Kovalen Polar";
+                badge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/30";
+            } else {
+                badge.innerText = "Kovalen Nonpolar";
+                badge.className = "inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-400/30";
+            }
+        }
+
+        /* ================= VIRTUAL LAB LOGIC ================= */
+        function selectLabTab(tab) {
+            if(tab === '3d') {
+                document.getElementById('lab-3d-container').classList.remove('hidden');
+                document.getElementById('lab-hantar-container').classList.add('hidden');
+                document.getElementById('labtab-3d').classList.add('border-orion-600', 'text-orion-600');
+                document.getElementById('labtab-hantar').classList.remove('border-orion-600', 'text-orion-600');
+                setTimeout(init3DViewer, 100);
+            } else {
+                document.getElementById('lab-3d-container').classList.add('hidden');
+                document.getElementById('lab-hantar-container').classList.remove('hidden');
+                document.getElementById('labtab-hantar').classList.add('border-orion-600', 'text-orion-600');
+                document.getElementById('labtab-3d').classList.remove('border-orion-600', 'text-orion-600');
+            }
+        }
+
+        /* THREE.JS 3D MOLECULAR VIEWER */
+        let scene, camera, renderer, moleculeGroup;
+        let is3DInitialized = false;
+
+        const moleculesData = {
+            ch4: {
+                name: "CH₄ (Metana)",
+                vsepr: "AX₄",
+                pei_peb: "PEI = 4 | PEB = 0",
+                hybrid: "sp³",
+                angle: "109.5°",
+                atoms: [
+                    { elem: 'C', pos: [0, 0, 0], color: 0x333333, size: 0.6 },
+                    { elem: 'H', pos: [1, 1, 1], color: 0xffffff, size: 0.35 },
+                    { elem: 'H', pos: [-1, -1, 1], color: 0xffffff, size: 0.35 },
+                    { elem: 'H', pos: [-1, 1, -1], color: 0xffffff, size: 0.35 },
+                    { elem: 'H', pos: [1, -1, -1], color: 0xffffff, size: 0.35 }
+                ]
+            },
+            h2o: {
+                name: "H₂O (Air)",
+                vsepr: "AX₂E₂",
+                pei_peb: "PEI = 2 | PEB = 2",
+                hybrid: "sp³",
+                angle: "104.5°",
+                atoms: [
+                    { elem: 'O', pos: [0, 0, 0], color: 0xef4444, size: 0.65 },
+                    { elem: 'H', pos: [0.9, 0.8, 0], color: 0xffffff, size: 0.35 },
+                    { elem: 'H', pos: [-0.9, 0.8, 0], color: 0xffffff, size: 0.35 }
+                ]
+            },
+            nh3: {
+                name: "NH₃ (Amonia)",
+                vsepr: "AX₃E₁",
+                pei_peb: "PEI = 3 | PEB = 1",
+                hybrid: "sp³",
+                angle: "107°",
+                atoms: [
+                    { elem: 'N', pos: [0, 0.2, 0], color: 0x3b82f6, size: 0.6 },
+                    { elem: 'H', pos: [0, -0.6, 1.1], color: 0xffffff, size: 0.35 },
+                    { elem: 'H', pos: [0.95, -0.6, -0.55], color: 0xffffff, size: 0.35 },
+                    { elem: 'H', pos: [-0.95, -0.6, -0.55], color: 0xffffff, size: 0.35 }
+                ]
+            },
+            bf3: {
+                name: "BF₃ (Boron Trifluorida)",
+                vsepr: "AX₃",
+                pei_peb: "PEI = 3 | PEB = 0",
+                hybrid: "sp²",
+                angle: "120°",
+                atoms: [
+                    { elem: 'B', pos: [0, 0, 0], color: 0xf59e0b, size: 0.55 },
+                    { elem: 'F', pos: [0, 1.2, 0], color: 0x10b981, size: 0.4 },
+                    { elem: 'F', pos: [1.04, -0.6, 0], color: 0x10b981, size: 0.4 },
+                    { elem: 'F', pos: [-1.04, -0.6, 0], color: 0x10b981, size: 0.4 }
+                ]
+            },
+            co2: {
+                name: "CO₂ (Karbon Dioksida)",
+                vsepr: "AX₂",
+                pei_peb: "PEI = 2 | PEB = 0",
+                hybrid: "sp",
+                angle: "180°",
+                atoms: [
+                    { elem: 'C', pos: [0, 0, 0], color: 0x333333, size: 0.6 },
+                    { elem: 'O', pos: [-1.3, 0, 0], color: 0xef4444, size: 0.55 },
+                    { elem: 'O', pos: [1.3, 0, 0], color: 0xef4444, size: 0.55 }
+                ]
+            },
+            pcl5: {
+                name: "PCl₅ (Fosfor Pentaklorida)",
+                vsepr: "AX₅",
+                pei_peb: "PEI = 5 | PEB = 0",
+                hybrid: "sp³d",
+                angle: "90° & 120°",
+                atoms: [
+                    { elem: 'P', pos: [0, 0, 0], color: 0x8b5cf6, size: 0.65 },
+                    { elem: 'Cl', pos: [0, 1.3, 0], color: 0x10b981, size: 0.4 },
+                    { elem: 'Cl', pos: [0, -1.3, 0], color: 0x10b981, size: 0.4 },
+                    { elem: 'Cl', pos: [1.1, 0, 0], color: 0x10b981, size: 0.4 },
+                    { elem: 'Cl', pos: [-0.55, 0, 0.95], color: 0x10b981, size: 0.4 },
+                    { elem: 'Cl', pos: [-0.55, 0, -0.95], color: 0x10b981, size: 0.4 }
+                ]
+            },
+            sf6: {
+                name: "SF₆ (Belerang Heksafluorida)",
+                vsepr: "AX₆",
+                pei_peb: "PEI = 6 | PEB = 0",
+                hybrid: "sp³d²",
+                angle: "90°",
+                atoms: [
+                    { elem: 'S', pos: [0, 0, 0], color: 0xeab308, size: 0.65 },
+                    { elem: 'F', pos: [0, 1.2, 0], color: 0x06b6d4, size: 0.38 },
+                    { elem: 'F', pos: [0, -1.2, 0], color: 0x06b6d4, size: 0.38 },
+                    { elem: 'F', pos: [1.2, 0, 0], color: 0x06b6d4, size: 0.38 },
+                    { elem: 'F', pos: [-1.2, 0, 0], color: 0x06b6d4, size: 0.38 },
+                    { elem: 'F', pos: [0, 0, 1.2], color: 0x06b6d4, size: 0.38 },
+                    { elem: 'F', pos: [0, 0, -1.2], color: 0x06b6d4, size: 0.38 }
+                ]
+            }
+        };
+
+        function init3DViewer() {
+            if (is3DInitialized) return;
+
+            const container = document.getElementById('canvas-3d');
+            if(!container) return;
+
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+            camera.position.z = 5;
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(width, height);
+            container.appendChild(renderer.domElement);
+
+            // Lights
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const pointLight = new THREE.PointLight(0xffffff, 0.8);
+            pointLight.position.set(10, 10, 10);
+            scene.add(pointLight);
+
+            moleculeGroup = new THREE.Group();
+            scene.add(moleculeGroup);
+
+            // Drag rotation variables
+            let isDragging = false;
+            let previousMousePosition = { x: 0, y: 0 };
+
+            container.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            container.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+
+                moleculeGroup.rotation.y += deltaX * 0.01;
+                moleculeGroup.rotation.x += deltaY * 0.01;
+
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            });
+
+            window.addEventListener('mouseup', () => isDragging = false);
+
+            is3DInitialized = true;
+            loadSelectedMolecule();
+            animate3D();
+        }
+
+        function animate3D() {
+            requestAnimationFrame(animate3D);
+            if (moleculeGroup) {
+                moleculeGroup.rotation.y += 0.003;
+            }
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+            }
+        }
+
+        function loadSelectedMolecule() {
+            const key = document.getElementById('mol-selector').value;
+            const data = moleculesData[key];
+
+            // Update Info Card
+            document.getElementById('info-formula').innerText = data.name;
+            document.getElementById('info-vsepr').innerText = data.vsepr;
+            document.getElementById('info-peb').innerText = data.pei_peb;
+            document.getElementById('info-hybrid').innerText = data.hybrid;
+            document.getElementById('info-angle').innerText = data.angle;
+
+            if(!moleculeGroup) return;
+
+            // Clear previous group
+            while(moleculeGroup.children.length > 0){ 
+                moleculeGroup.remove(moleculeGroup.children[0]); 
+            }
+
+            const centerAtom = data.atoms[0];
+
+            data.atoms.forEach((atom, index) => {
+                // Sphere geometry for atom
+                const geom = new THREE.SphereGeometry(atom.size, 32, 32);
+                const mat = new THREE.MeshPhongMaterial({ color: atom.color, shininess: 80 });
+                const mesh = new THREE.Mesh(geom, mat);
+                mesh.position.set(atom.pos[0], atom.pos[1], atom.pos[2]);
+                moleculeGroup.add(mesh);
+
+                // Add cylinder bond to center atom
+                if(index > 0) {
+                    const bondGeom = new THREE.CylinderGeometry(0.08, 0.08, 1, 16);
+                    const bondMat = new THREE.MeshPhongMaterial({ color: 0xcccccc });
+                    const bondMesh = new THREE.Mesh(bondGeom, bondMat);
+
+                    const start = new THREE.Vector3(...centerAtom.pos);
+                    const end = new THREE.Vector3(...atom.pos);
+                    const distance = start.distanceTo(end);
+
+                    bondMesh.scale.set(1, distance, 1);
+                    bondMesh.position.copy(start.clone().add(end).multiplyScalar(0.5));
+
+                    const orientation = new THREE.Matrix4();
+                    orientation.lookAt(start, end, new THREE.Vector3(0, 1, 0));
+                    orientation.multiply(new THREE.Matrix4().makeRotationX(Math.PI / 2));
+                    bondMesh.quaternion.setFromRotationMatrix(orientation);
+
+                    moleculeGroup.add(bondMesh);
+                }
+            });
+        }
+
+        /* CONDUCTIVITY SIMULATOR STATE */
+        let isCircuitOn = true;
+        let currentSample = 'nacl_aq';
+
+        function setConductivitySample(sample) {
+            currentSample = sample;
+            
+            document.querySelectorAll('.sample-btn').forEach(btn => {
+                btn.classList.remove('bg-blue-50', 'border-blue-500', 'text-blue-700');
+            });
+            document.getElementById(`sample-${sample}`).classList.add('bg-blue-50', 'border-blue-500', 'text-blue-700');
+
+            updateConductivityUI();
+        }
+
+        function toggleCircuit() {
+            isCircuitOn = !isCircuitOn;
+            const btnText = document.getElementById('switch-text');
+            const switchBtn = document.getElementById('circuit-switch-btn');
+
+            if(isCircuitOn) {
+                btnText.innerText = "Sakelar: ON";
+                switchBtn.className = "w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold shadow-md transition-all flex items-center justify-center space-x-2";
+            } else {
+                btnText.innerText = "Sakelar: OFF";
+                switchBtn.className = "w-full py-3 bg-slate-600 hover:bg-slate-500 text-white rounded-xl font-bold shadow-md transition-all flex items-center justify-center space-x-2";
+            }
+            updateConductivityUI();
+        }
+
+        function updateConductivityUI() {
+            const bulb = document.getElementById('lab-bulb');
+            const bulbText = document.getElementById('bulb-status-text');
+            const desc = document.getElementById('sample-desc');
+
+            if (!isCircuitOn) {
+                bulb.className = "w-16 h-16 rounded-full bg-slate-700 mx-auto transition-all duration-300 flex items-center justify-center";
+                bulbText.innerText = "Sakelar Terputus (Mati)";
+                desc.innerText = "Nyalakan sakelar untuk menguji daya hantar listrik.";
+                return;
+            }
+
+            if (currentSample === 'nacl_aq') {
+                bulb.className = "w-16 h-16 rounded-full bg-amber-400 bulb-glow mx-auto transition-all duration-300 flex items-center justify-center";
+                bulbText.innerText = "Lampu Menyala Terang! 💡";
+                desc.innerText = "Elektrolit Kuat: Terionisasi sempurna menghasilkan ion Na⁺ dan Cl⁻ melimpah.";
+            } else if (currentSample === 'ch3cooh') {
+                bulb.className = "w-16 h-16 rounded-full bg-amber-200/60 mx-auto transition-all duration-300 flex items-center justify-center";
+                bulbText.innerText = "Lampu Redup 🕯️";
+                desc.innerText = "Elektrolit Lemah: Hanya terionisasi sebagian kecil di dalam air.";
+            } else if (currentSample === 'cu_solid') {
+                bulb.className = "w-16 h-16 rounded-full bg-amber-400 bulb-glow mx-auto transition-all duration-300 flex items-center justify-center";
+                bulbText.innerText = "Lampu Menyala Terang! 💡";
+                desc.innerText = "Konduktor Logam: Mengalirkan listrik melalui pergerakan lautan elektron bebas.";
+            } else {
+                bulb.className = "w-16 h-16 rounded-full bg-slate-700 mx-auto transition-all duration-300 flex items-center justify-center";
+                bulbText.innerText = "Lampu Padam";
+                desc.innerText = "Non-Elektrolit: Molekul netral, tidak menghasilkan ion bebas.";
+            }
+        }
+
+        /* ================= LKPD LOGIC ================= */
+        function simpanDanCetakLKPD() {
+            const nama = document.getElementById('lkpd-nama').value || 'Siswa';
+            const kelas = document.getElementById('lkpd-kelas').value || '-';
+            const q1 = document.getElementById('lkpd-q1').value;
+            const q2 = document.getElementById('lkpd-q2').value;
+            const q3 = document.getElementById('lkpd-q3').value;
+            const essay = document.getElementById('lkpd-essay').value;
+
+            if(!q1 || !q2 || !q3) {
+                alert('Mohon lengkapi seluruh pilihan klasifikasi jenis ikatan pada Soal 1.');
+                return;
+            }
+
+            window.print();
+        }
+
+        /* ================= QUIZ ENGINE LOGIC ================= */
+        const quizQuestions = [
+            {
+                q: "Unsur Natrium (Na, Z=11) dan Klorin (Cl, Z=17) membentuk senyawa NaCl. Jenis ikatan yang terbentuk adalah...",
+                category: "Ikatan Ion",
+                options: ["Ikatan Kovalen Tunggal", "Ikatan Ion", "Ikatan Logam", "Ikatan Kovalen Koordinasi"],
+                answer: 1,
+                explanation: "Unsur logam Na melepas 1 elektron valensi membentuk Na⁺, sedangkan unsur non-logam Cl menerima 1 elektron membentuk Cl⁻. Gaya tarik elektrostatik kation-anion ini membentuk Ikatan Ion."
+            },
+            {
+                q: "Pasangan molekul berikut yang memiliki ikatan kovalen rangkap dua adalah...",
+                category: "Ikatan Kovalen",
+                options: ["H₂ dan Cl₂", "O₂ dan CO₂", "N₂ dan NH₃", "H₂O dan CH₄"],
+                answer: 1,
+                explanation: "Oksigen (O₂) dan Karbon Dioksida (CO₂) berbagi 2 pasang elektron antar atomnya untuk memenuhi kaidah oktet (Ikatan kovalen rangkap 2)."
+            },
+            {
+                q: "Model 'Lautan Elektron' digunakan untuk menjelaskan sifat fisik zat berupa...",
+                category: "Ikatan Logam",
+                options: ["Titik leleh yang sangat rendah", "Kelarutan tinggi dalam air", "Daya hantar listrik pada padatan logam", "Kerapuhan kristal"],
+                answer: 2,
+                explanation: "Model lautan elektron menjelaskan bahwa elektron valensi terdelokalisasi bebas bergerak mengelilingi kation logam, sehingga logam dapat menghantarkan listrik dengan baik."
+            },
+            {
+                q: "Bentuk molekul Metana (CH₄) menurut teori VSEPR adalah...",
+                category: "Bentuk Molekul",
+                options: ["Linear", "Trigonal Planar", "Tetrahedral", "Oktahedral"],
+                answer: 2,
+                explanation: "CH₄ memiliki 4 Pasangan Elektron Ikatan (PEI) dan 0 Pasangan Elektron Bebas (PEB) dengan notasi VSEPR AX₄, sehingga geometrinya adalah Tetrahedral (sudut 109.5°)."
+            },
+            {
+                q: "Orbital hibrida yang terbentuk pada molekul H₂O (dengan 2 PEI dan 2 PEB) adalah...",
+                category: "Hibridisasi",
+                options: ["sp", "sp²", "sp³", "sp³d"],
+                answer: 2,
+                explanation: "Molekul H₂O memiliki total domain elektron sebanyak 4 (2 PEI + 2 PEB), sehingga menggunakan hibridisasi sp³."
+            },
+            {
+                q: "Tingginya titik didih air (H₂O) dibandingkan dengan H₂S disebabkan oleh adanya...",
+                category: "Gaya Antarmolekul",
+                options: ["Ikatan Kovalen Polar", "Gaya London", "Ikatan Hidrogen", "Ikatan Ionik"],
+                answer: 2,
+                explanation: "Antara molekul H₂O terdapat Ikatan Hidrogen yang sangat kuat karena atom H terikat langsung pada atom O yang sangat elektronegatif."
+            },
+            {
+                q: "Ikatan kovalen koordinasi terdapat pada molekul/ion di bawah ini, yaitu...",
+                category: "Ikatan Kovalen",
+                options: ["NH₄⁺", "CH₄", "NaCl", "O₂"],
+                answer: 0,
+                explanation: "Pada kation NH₄⁺, salah satu ikatan antara N dan H⁺ terbentuk dari pasangan elektron yang seluruhnya disumbangkan oleh atom N (Kovalen Koordinasi)."
+            },
+            {
+                q: "Molekul BF₃ bersifat nonpolar karena...",
+                category: "Kepolaran Molekul",
+                options: ["Memiliki PEB pada atom pusat", "Bentuk molekulnya simetris (Trigonal Planar) dengan resultan dipol = 0", "Beda keelektronegatifannya sangat besar", "Membentuk ikatan ionik"],
+                answer: 1,
+                explanation: "BF₃ berbentuk Trigonal Planar simetris tanpa PEB pada atom pusat (AX₃), sehingga momen dipol totalnya sama dengan nol (Nonpolar)."
+            },
+            {
+                q: "Bentuk molekul dengan notasi VSEPR AX₃E₁ (contohnya NH₃) adalah...",
+                category: "Bentuk Molekul",
+                options: ["Trigonal Planar", "Trigonal Piramida", "Tetrahedral", "Bengkok (Bent)"],
+                answer: 1,
+                explanation: "Notasi AX₃E₁ memiliki 3 PEI dan 1 PEB. Keberadaan 1 PEB memberikan tolakan lebih kuat sehingga bentuknya menjadi Trigonal Piramida."
+            },
+            {
+                q: "Sifat fisik khas dari senyawa ionik adalah...",
+                category: "Sifat Senyawa",
+                options: ["Memiliki titik leleh dan titik didih yang tinggi", "Dapat menghantarkan listrik dalam fase padat", "Mudah menguap pada suhu ruang", "Selalu bersifat nonpolar"],
+                answer: 0,
+                explanation: "Senyawa ionik memiliki kisi kristal dengan gaya elektrostatik Coulomb yang sangat kuat, sehingga memerlukan energi thermal tinggi untuk melelehkannya."
+            }
+        ];
+
+        let currentQuizIndex = 0;
+        let userAnswers = new Array(quizQuestions.length).fill(null);
+
+        function loadQuestion() {
+            const q = quizQuestions[currentQuizIndex];
+            document.getElementById('quiz-q-num').innerText = `Soal ${currentQuizIndex + 1} dari ${quizQuestions.length}`;
+            document.getElementById('quiz-q-category').innerText = q.category;
+            document.getElementById('quiz-q-text').innerText = q.q;
+
+            // Progress Bar
+            const percent = ((currentQuizIndex + 1) / quizQuestions.length) * 100;
+            document.getElementById('quiz-progress-bar').style.width = `${percent}%`;
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const isSelected = userAnswers[currentQuizIndex] === idx;
+                const btn = document.createElement('button');
+                btn.className = `w-full text-left p-4 rounded-xl border text-sm font-semibold transition-all flex items-center space-x-3 ${
+                    isSelected ? 'border-orion-600 bg-orion-50 text-orion-800' : 'border-slate-200 bg-white hover:bg-slate-50 text-slate-700'
+                }`;
+                btn.onclick = () => selectQuizAnswer(idx);
+                btn.innerHTML = `
+                    <span class="w-7 h-7 rounded-lg ${isSelected ? 'bg-orion-600 text-white' : 'bg-slate-100 text-slate-600'} flex items-center justify-center text-xs font-bold">${String.fromCharCode(65 + idx)}</span>
+                    <span>${opt}</span>
+                `;
+                optionsContainer.appendChild(btn);
+            });
+
+            // Handle Explanation Display
+            const expBox = document.getElementById('quiz-explanation');
+            if (userAnswers[currentQuizIndex] !== null) {
+                expBox.classList.remove('hidden');
+                document.getElementById('quiz-explanation-text').innerText = q.explanation;
+            } else {
+                expBox.classList.add('hidden');
+            }
+
+            // Disable/Enable Prev Button
+            document.getElementById('quiz-prev-btn').disabled = currentQuizIndex === 0;
+            
+            // Text Next or Submit
+            const nextBtn = document.getElementById('quiz-next-btn');
+            if (currentQuizIndex === quizQuestions.length - 1) {
+                nextBtn.innerHTML = `Selesai Kuis <i class="fa-solid fa-check ml-1"></i>`;
+            } else {
+                nextBtn.innerHTML = `Berikutnya <i class="fa-solid fa-arrow-right ml-1"></i>`;
+            }
+        }
+
+        function selectQuizAnswer(optionIndex) {
+            userAnswers[currentQuizIndex] = optionIndex;
+            loadQuestion();
+        }
+
+        function nextQuestion() {
+            if (currentQuizIndex < quizQuestions.length - 1) {
+                currentQuizIndex++;
+                loadQuestion();
+            } else {
+                calculateQuizResults();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuizIndex > 0) {
+                currentQuizIndex--;
+                loadQuestion();
+            }
+        }
+
+        function calculateQuizResults() {
+            let correct = 0;
+            quizQuestions.forEach((q, idx) => {
+                if (userAnswers[idx] === q.answer) {
+                    correct++;
+                }
+            });
+
+            const score = (correct / quizQuestions.length) * 100;
+
+            document.getElementById('quiz-box').classList.add('hidden');
+            document.getElementById('quiz-results').classList.remove('hidden');
+            document.getElementById('final-score').innerText = score;
+            
+            document.getElementById('quiz-score-badge').classList.remove('hidden');
+            document.getElementById('quiz-score-val').innerText = `${score} / 100`;
+        }
+
+        function resetQuiz() {
+            currentQuizIndex = 0;
+            userAnswers.fill(null);
+            document.getElementById('quiz-box').classList.remove('hidden');
+            document.getElementById('quiz-results').classList.add('hidden');
+            document.getElementById('quiz-score-badge').classList.add('hidden');
+            loadQuestion();
+        }
+
+        // Initialize on load
+        window.onload = function() {
+            loadQuestion();
+            updatePolarityDemo();
+        };
+    </script>
+</body>
+</html>
